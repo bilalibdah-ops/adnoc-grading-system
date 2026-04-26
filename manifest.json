@@ -1,0 +1,22 @@
+{
+  "name": "مدارس أدنوك - نظام الدرجات",
+  "short_name": "نظام أدنوك",
+  "description": "نظام تقييم وتتبع درجات الطلاب الذكي",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f1f5f9",
+  "theme_color": "#0f4c75",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192x192.png?text=ADNOC",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512x512.png?text=ADNOC",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
