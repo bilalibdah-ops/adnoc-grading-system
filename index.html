@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f4c75">
     <title>مدارس أدنوك - قسم المواد الوزاريّة</title>
+    
+    <!-- ربط التطبيق بملف PWA -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://via.placeholder.com/192x192.png?text=ADNOC">
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -36,6 +42,8 @@
     .btn-header.danger:hover { background: rgba(239,68,68,0.4); }
     .btn-header.export { background: rgba(16,185,129,0.25); border-color: rgba(16,185,129,0.5); }
     .btn-header.export:hover { background: rgba(16,185,129,0.4); }
+    .btn-header.backup { background: rgba(245, 158, 11, 0.2); border-color: rgba(245, 158, 11, 0.5); color: #fcd34d; }
+    .btn-header.backup:hover { background: rgba(245, 158, 11, 0.4); }
 
     /* ============= NAVIGATION ============= */
     .nav-tabs { display: flex; padding: 0 12px; overflow-x: auto; scrollbar-width: none; }
@@ -83,63 +91,39 @@
     .btn-icon.edit:hover { background: #dbeafe; border-color: #93c5fd; }
     .btn-icon.delete:hover { background: #fee2e2; border-color: #fca5a5; }
 
-    /* ============= TABLE & INLINE EDITING (DENSE LAYOUT) ============= */
+    /* ============= TABLE & INLINE EDITING ============= */
     .table-wrap { overflow-y: auto; max-height: 68vh; border-radius: var(--radius-sm); border: 1px solid var(--border); background: white; }
     table { width: 100%; border-collapse: collapse; font-size: 12.5px; } 
-    
-    thead th { 
-        position: sticky; top: 0; z-index: 10;
-        background: linear-gradient(135deg, var(--secondary), var(--primary)); 
-        color: white; padding: 10px 8px; text-align: right; 
-        box-shadow: 0 2px 5px rgba(0,0,0,0.15); vertical-align: middle;
-    }
-    
+    thead th { position: sticky; top: 0; z-index: 10; background: linear-gradient(135deg, var(--secondary), var(--primary)); color: white; padding: 10px 8px; text-align: right; box-shadow: 0 2px 5px rgba(0,0,0,0.15); vertical-align: middle; }
     .th-crit-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-align: center; }
     .th-crit-title { font-size: clamp(10.5px, 1vw, 12px); white-space: normal; line-height: 1.2; font-weight: 700; }
     .th-crit-max { background: rgba(255,255,255,0.25); color: #fcd34d; font-size: 10px; font-weight: 900; padding: 2px 6px; border-radius: 10px; }
-
     tbody tr { border-bottom: 1px solid var(--border); transition: all 0.2s ease; }
     tbody tr:last-child { border-bottom: none; }
     tbody tr:hover { background: #f8fafc; }
-    tbody tr:focus-within, tbody tr.active-row { 
-        background-color: #e0f2fe !important; 
-        box-shadow: inset 4px 0 0 #0ea5e9, inset 0 1px 2px rgba(0,0,0,0.05); 
-    }
-    
+    tbody tr:focus-within, tbody tr.active-row { background-color: #e0f2fe !important; box-shadow: inset 4px 0 0 #0ea5e9, inset 0 1px 2px rgba(0,0,0,0.05); }
     tbody td { padding: 4px 8px; vertical-align: middle; height: 42px; } 
     .cell-num { text-align: center; font-weight: 700; color: var(--text-muted); }
-    tr.level-gold { border-right: 4px solid var(--gold); }
-    tr.level-silver { border-right: 4px solid #94a3b8; }
-    tr.level-bronze { border-right: 4px solid var(--bronze); }
+    tr.level-gold { border-right: 4px solid var(--gold); } tr.level-silver { border-right: 4px solid #94a3b8; } tr.level-bronze { border-right: 4px solid var(--bronze); }
     
-    /* المربعات واضحة بشكل دائم */
-    .inline-score-input {
-        width: 55px; padding: 6px 2px; border: 1px solid #cbd5e1; border-radius: 6px;
-        text-align: center; font-family: var(--font); font-size: 14px; font-weight: 900;
-        color: var(--primary); background: #f8fafc; transition: all 0.2s; height: 32px;
-    }
+    .inline-score-input { width: 55px; padding: 6px 2px; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; font-family: var(--font); font-size: 14px; font-weight: 900; color: var(--primary); background: #f8fafc; transition: all 0.2s; height: 32px; }
     .inline-score-input:hover { border-color: #94a3b8; background: white; }
     .inline-score-input:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(15,76,117,0.15); transform: scale(1.05); }
     .inline-score-input::-webkit-outer-spin-button, .inline-score-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-
-    /* اهتزاز المربع عند إدخال درجة خاطئة */
     @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-4px);} 75% {transform: translateX(4px);} }
     .input-error { animation: shake 0.3s ease-in-out; border-color: var(--danger) !important; background: #fef2f2 !important; color: var(--danger) !important; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important; }
 
-    /* ============= BADGES ============= */
+    /* ============= BADGES & FILTERS ============= */
     .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 800; white-space: nowrap; }
     .badge-gold { background: var(--gold-light); color: var(--gold-dark); border: 1px solid #fcd34d; }
     .badge-silver { background: var(--silver-light); color: var(--silver-dark); border: 1px solid #cbd5e1; }
     .badge-bronze { background: var(--bronze-light); color: var(--bronze-dark); border: 1px solid #fed7aa; }
 
-    /* ============= FILTERS BAR ============= */
     .filters-bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; padding: 12px 18px; background: white; border-radius: var(--radius); box-shadow: var(--shadow); }
     .filter-group { display: flex; align-items: center; gap: 8px; }
     .filter-label { font-size: 13px; font-weight: 800; color: var(--text-muted); white-space: nowrap; }
-    .filter-select { padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-family: var(--font); font-size: 13px; background: var(--bg); cursor: pointer; font-weight: 600; }
-    .filter-select:focus { outline: none; border-color: var(--primary); }
-    .filter-input { padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-family: var(--font); font-size: 13px; background: var(--bg); min-width: 180px; font-weight: 600; }
-    .filter-input:focus { outline: none; border-color: var(--primary); }
+    .filter-select, .filter-input { padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-family: var(--font); font-size: 13px; background: var(--bg); font-weight: 600; outline:none; }
+    .filter-select:focus, .filter-input:focus { border-color: var(--primary); }
     .filter-spacer { flex: 1; }
 
     /* ============= PAGINATION ============= */
@@ -151,18 +135,17 @@
     .page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
     .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* ============= CHARTS & STATS GRID ============= */
+    /* ============= CHARTS & STATS ============= */
     .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; margin-bottom: 20px; }
     .chart-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
     .chart-title { font-size: 15px; font-weight: 800; margin-bottom: 16px; color: var(--text); border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
     .chart-wrap { position: relative; height: 250px; }
-
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin-bottom: 20px; }
     .stat-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; text-align: center; border-bottom: 3px solid var(--primary); }
     .stat-value { font-size: 32px; font-weight: 900; background: linear-gradient(135deg, var(--primary), var(--primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; margin-bottom: 8px; }
     .stat-label { font-size: 11.5px; font-weight: 700; color: var(--text-muted); }
 
-    /* ============= MODALS ============= */
+    /* ============= MODALS & CRITERIA CARDS ============= */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 76, 117, 0.6); z-index: 1000; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(3px); }
     .modal-overlay.active { display: flex; }
     .modal { background: white; border-radius: var(--radius); box-shadow: 0 25px 50px rgba(0,0,0,0.3); padding: 28px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -172,7 +155,6 @@
     .modal-title { font-size: 18px; font-weight: 900; color: var(--primary); }
     .modal-close { width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--bg); cursor: pointer; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: all 0.2s; color: var(--text-muted); }
     .modal-close:hover { background: #fee2e2; color: #ef4444; transform: rotate(90deg); }
-    
     .form-group { margin-bottom: 16px; }
     .form-label { display: block; font-size: 13px; font-weight: 800; margin-bottom: 6px; color: var(--text); }
     .form-control { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: var(--font); font-size: 14px; font-weight: 600; outline: none; transition: all 0.2s; background: var(--bg); }
@@ -182,10 +164,8 @@
     .modal-footer { display: flex; gap: 10px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); justify-content: flex-end; }
     .divider { height: 1px; background: var(--border); margin: 16px 0; }
 
-    /* ============= CRITERIA CARDS & PREVIEW BOX ============= */
     .criteria-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 18px; }
     .crit-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; transition: transform 0.2s; border: 1px solid var(--border); }
-    .crit-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
     .crit-card-head { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; padding: 16px; display: flex; justify-content: space-between; align-items: flex-start; }
     .crit-name { font-size: 15px; font-weight: 800; margin-bottom: 4px; }
     .crit-desc { font-size: 12px; opacity: 0.85; font-weight: 600; }
@@ -222,39 +202,12 @@
     @keyframes toastIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
     @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-20px); } }
 
-    /* ============= STRICT PRINT MEDIA (ضمان الطباعة الصارمة في صفحة واحدة) ============= */
+    /* ============= STRICT PRINT MEDIA ============= */
     @media print {
-        /* إخفاء كل شيء على الصفحة ما عدا منطقة الطباعة */
         body > *:not(#printArea) { display: none !important; }
-        
-        /* إجبار المتصفح على طباعة الألوان والخلفيات */
-        html, body { 
-            width: 100% !important; height: 100% !important; 
-            margin: 0 !important; padding: 0 !important; 
-            background: white !important; overflow: hidden !important; 
-            -webkit-print-color-adjust: exact !important; 
-            print-color-adjust: exact !important; 
-        }
-        
-        #printArea { 
-            display: flex !important; position: fixed !important; 
-            left: 0; top: 0; width: 100vw; height: 100vh; 
-            margin: 0; padding: 0; align-items: center; justify-content: center; 
-            background: white; z-index: 999999; 
-        }
-
-        /* حاوية الشهادة بأبعاد صارمة جداً لورقة A4 بالعرض */
-        .cert-container { 
-            width: 275mm !important; height: 185mm !important; /* مقاسات آمنة تمنع التمدد */
-            box-sizing: border-box !important;
-            border: 15px solid #0f4c75 !important; padding: 30px !important; border-radius: 20px !important; 
-            outline: 4px solid #f59e0b !important; outline-offset: -12px !important; 
-            position: relative !important; text-align: center !important; 
-            display: flex !important; flex-direction: column !important; justify-content: center !important; align-items: center !important;
-            background: #fff !important; 
-            page-break-after: avoid !important; page-break-before: avoid !important; page-break-inside: avoid !important;
-        }
-        
+        html, body { width: 100% !important; height: 100% !important; margin: 0 !important; padding: 0 !important; background: white !important; overflow: hidden !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        #printArea { display: flex !important; position: fixed !important; left: 0; top: 0; width: 100vw; height: 100vh; margin: 0; padding: 0; align-items: center; justify-content: center; background: white; z-index: 999999; }
+        .cert-container { width: 275mm !important; height: 185mm !important; box-sizing: border-box !important; border: 15px solid #0f4c75 !important; padding: 30px !important; border-radius: 20px !important; outline: 4px solid #f59e0b !important; outline-offset: -12px !important; position: relative !important; text-align: center !important; display: flex !important; flex-direction: column !important; justify-content: center !important; align-items: center !important; background: #fff !important; page-break-after: avoid !important; page-break-before: avoid !important; page-break-inside: avoid !important; }
         @page { size: A4 landscape; margin: 0; }
     }
     #printArea { display: none; }
@@ -262,14 +215,15 @@
 </head>
 <body>
 
-<!-- حاوية الإشعارات -->
 <div id="toastWrap" class="toast-wrap"></div>
+
+<!-- إدخال ملف مخفي للاستعادة -->
+<input type="file" id="backupFileInput" style="display: none;" accept=".adnoc" onchange="importBackup(event)">
 
 <!-- ========== HEADER ========== -->
 <header class="app-header">
     <div class="header-top">
         <div class="app-logo">
-            <!-- الشعار (استبدل الرابط بشعار مدرستك) -->
             <img src="https://via.placeholder.com/80x80.png?text=LOGO" alt="شعار المدرسة" class="app-logo-img">
             <div>
                 <div class="app-title">مدارس أدنوك - قسم المواد الوزاريّة</div>
@@ -277,8 +231,12 @@
             </div>
         </div>
         <div class="header-actions">
-            <button class="btn-header export" onclick="exportExcel()">📥 تصدير الإكسل (CSV)</button>
-            <button class="btn-header danger" onclick="confirmReset()">🗑️ إعادة تعيين ومسح النظام</button>
+            <!-- تمت إضافة أزرار النسخ الاحتياطي هنا -->
+            <button class="btn-header backup" onclick="triggerImport()" title="استعادة النظام من ملف سابق">📂 استعادة</button>
+            <button class="btn-header backup" onclick="exportBackup()" title="حفظ نسخة كاملة من النظام">💾 حفظ نسخة</button>
+            <div style="width: 1px; height: 20px; background: rgba(255,255,255,0.2); margin: 0 4px;"></div>
+            <button class="btn-header export" onclick="exportExcel()">📥 تصدير (CSV)</button>
+            <button class="btn-header danger" onclick="confirmReset()">🗑️ مسح النظام</button>
         </div>
     </div>
     <nav class="nav-tabs">
@@ -420,11 +378,9 @@
 <!-- MODALS -->
 <!-- ========================================== -->
 
-<!-- Add/Edit Single Student Modal -->
 <div class="modal-overlay" id="studentModal">
     <div class="modal">
         <div class="modal-header"><div class="modal-title" id="sModalTitle">إضافة طالب جديد</div><button class="modal-close" onclick="closeModal('studentModal')">✕</button></div>
-        
         <div class="form-grid" style="margin-bottom: 20px;">
             <div class="form-group"><label class="form-label">الرقم المدرسي / الأكاديمي (اختياري)</label><input type="text" class="form-control" id="sId" placeholder="مثال: 2023001"></div>
             <div class="form-group"><label class="form-label">الاسم الكامل *</label><input type="text" class="form-control" id="sName"></div>
@@ -436,11 +392,9 @@
             </div>
             <div class="form-group"><label class="form-label">الشعبة</label><select class="form-control" id="sSection"><option selected>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option></select></div>
         </div>
-        
         <div style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-align: center; background: var(--bg); padding: 10px; border-radius: 8px;">
             💡 يمكنك إدخال وتعديل درجات الطالب بكل سهولة مباشرة من الجدول لاحقاً.
         </div>
-
         <div class="modal-footer">
             <button class="btn btn-outline" onclick="closeModal('studentModal')">إلغاء</button>
             <button class="btn btn-primary" onclick="saveStudent()">💾 حفظ الطالب</button>
@@ -448,11 +402,9 @@
     </div>
 </div>
 
-<!-- Bulk Import Modal -->
 <div class="modal-overlay" id="bulkModal">
     <div class="modal modal-lg">
         <div class="modal-header"><div class="modal-title">📥 استيراد وإدخال جماعي</div><button class="modal-close" onclick="closeModal('bulkModal')">✕</button></div>
-        
         <div style="display:flex; gap:18px; margin-bottom:15px; flex-wrap:wrap;">
             <div style="flex:1; min-width: 260px;">
                 <label class="form-label" style="color:var(--primary); font-size:14px;">📋 انسخ والصق الأسماء هنا</label>
@@ -460,7 +412,6 @@
                 <small style="color:var(--text-muted); font-size:12px; font-weight:600; margin-top:6px; display:block;">* النظام ذكي: سيتعرف تلقائياً على الرقم المدرسي والاسم ويفصلهما بدقة.</small>
             </div>
             <div style="flex:1; min-width: 260px; background:var(--bg); padding:18px; border-radius:var(--radius-sm); border: 1px solid var(--border);">
-                <!-- التعديل 1: تم إرجاع جميع الصفوف والشعب -->
                 <div class="form-group">
                     <label class="form-label">تحديد الصف للدفعة المضافة</label>
                     <select class="form-control" id="bulkClass">
@@ -475,7 +426,6 @@
                 <button class="btn btn-info" style="width: 100%; justify-content: center; padding: 12px; font-size: 14px;" onclick="processBulkText()">👁️ معاينة وتجهيز البيانات</button>
             </div>
         </div>
-
         <div id="bulkPreviewContainer" style="display:none; margin-top:20px; border-top: 2px solid var(--border); padding-top: 20px;">
             <div class="form-label" style="color:var(--primary); font-size:15px; display:flex; justify-content:space-between;">
                 <span id="bulkPreviewTitle">معاينة البيانات</span>
@@ -495,7 +445,6 @@
     </div>
 </div>
 
-<!-- Criteria Modal -->
 <div class="modal-overlay" id="criteriaModal">
     <div class="modal">
         <div class="modal-header"><div class="modal-title" id="cModalTitle">إضافة/تعديل معيار</div><button class="modal-close" onclick="closeModal('criteriaModal')">✕</button></div>
@@ -513,7 +462,6 @@
     </div>
 </div>
 
-<!-- Certificate Settings Modal -->
 <div class="modal-overlay" id="certModal">
     <div class="modal">
         <div class="modal-header"><div class="modal-title">🎓 إعدادات شهادة التقدير</div><button class="modal-close" onclick="closeModal('certModal')">✕</button></div>
@@ -536,13 +484,11 @@
 <!-- ================== PRINT AREA (CERTIFICATE) ================== -->
 <div id="printArea">
     <div class="cert-container">
-        <!-- زوايا الإطار الزخرفية -->
         <div style="position:absolute; top:25px; left:25px; width:60px; height:60px; border-top:6px solid #0f4c75; border-left:6px solid #0f4c75;"></div>
         <div style="position:absolute; top:25px; right:25px; width:60px; height:60px; border-top:6px solid #0f4c75; border-right:6px solid #0f4c75;"></div>
         <div style="position:absolute; bottom:25px; left:25px; width:60px; height:60px; border-bottom:6px solid #0f4c75; border-left:6px solid #0f4c75;"></div>
         <div style="position:absolute; bottom:25px; right:25px; width:60px; height:60px; border-bottom:6px solid #0f4c75; border-right:6px solid #0f4c75;"></div>
         
-        <!-- الشعار في الشهادة -->
         <img src="https://via.placeholder.com/80x80.png?text=LOGO" alt="شعار" style="height: 70px; object-fit: contain; margin-bottom: 5px;">
         
         <h1 style="color:#0f4c75; font-size: 30px; margin-bottom: 5px; font-weight:900; letter-spacing: 1px;">مدارس أدنوك</h1>
@@ -558,7 +504,6 @@
         
         <p id="pReason" style="font-size: 22px; margin: 35px 80px; font-weight: 800; color:#1e3a5f; line-height:1.7;"></p>
         
-        <!-- التعديل 2: تم إصلاح إظهار اسم المعلم والتاريخ وتنسيقهم بشكل رسمي -->
         <div style="display: flex; justify-content: space-between; margin-top: 50px; padding: 0 100px; width: 100%;">
             <div style="text-align:center;">
                 <p style="font-size:20px; font-weight:900; margin-bottom:15px; color:#475569;">معلم المادة</p>
@@ -574,10 +519,68 @@
     </div>
 </div>
 
-<!-- ========================================================= -->
-<!-- JAVASCRIPT LOGIC -->
-<!-- ========================================================= -->
 <script>
+/* ================== PWA SERVICE WORKER REGISTRATION ================== */
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('Service Worker Registered'))
+            .catch(err => console.log('Service Worker Error', err));
+    });
+}
+
+/* ================== BACKUP & RESTORE LOGIC ================== */
+function exportBackup() {
+    if(D.students.length === 0 && D.criteria.length === 0) {
+        return toast('النظام فارغ، لا يوجد شيء لحفظه!', 'error');
+    }
+    // تحويل البيانات إلى نص مشفر
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(D));
+    const dlAnchorElem = document.createElement('a');
+    dlAnchorElem.setAttribute("href", dataStr);
+    
+    // إنشاء اسم ملف احترافي بالتاريخ
+    const date = new Date().toLocaleDateString('en-GB').replace(/\//g,'-');
+    dlAnchorElem.setAttribute("download", `نسخة_نظام_الدرجات_${date}.adnoc`);
+    
+    document.body.appendChild(dlAnchorElem);
+    dlAnchorElem.click();
+    dlAnchorElem.remove();
+    toast('تم حفظ نسخة النظام بنجاح!', 'success');
+}
+
+function triggerImport() {
+    document.getElementById('backupFileInput').click();
+}
+
+function importBackup(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const importedData = JSON.parse(e.target.result);
+            // التحقق من صحة الملف المرفوع
+            if(importedData && typeof importedData === 'object' && Array.isArray(importedData.students) && Array.isArray(importedData.criteria)) {
+                if(confirm('تنبيه: استعادة هذه النسخة ستمسح بياناتك الحالية وتستبدلها ببيانات الملف. هل أنت متأكد؟')) {
+                    D = importedData;
+                    save(); // حفظ في المتصفح
+                    location.reload(); // إعادة تحميل الصفحة لتطبيق التغييرات
+                }
+            } else {
+                throw new Error("Invalid Format");
+            }
+        } catch (err) {
+            playErrorSound();
+            toast('عذراً، الملف المرفوع غير صالح أو تالف!', 'error');
+        }
+        // إعادة تعيين حقل الإدخال ليتمكن من رفع نفس الملف مرة أخرى إذا لزم الأمر
+        event.target.value = '';
+    };
+    reader.readAsText(file);
+}
+
 /* ================== TOAST NOTIFICATIONS ================== */
 function toast(msg, type = 'info') {
     const wrap = document.getElementById('toastWrap');
@@ -629,7 +632,7 @@ let D = {
 };
 
 let editSid = null, editCid = null, curPage = 1, tempBulkStudents = [];
-const PG = 30; // 30 طالب في الصفحة
+const PG = 30; 
 const charts = {};
 
 /* ================== STORAGE ================== */
@@ -1042,7 +1045,7 @@ function renderStats() {
     ]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{font:{family:"'Cairo',sans-serif"}}}}, scales:{x:{stacked:true},y:{stacked:true}}} });
 }
 
-/* ================== EDUCATIONAL AI FEEDBACK (تحليل شمولية التغذية الراجعة) ================== */
+/* ================== EDUCATIONAL AI FEEDBACK ================== */
 function generateFeedback(student, type) {
     let criteriaAnalysis = D.criteria.map(c => {
         return { name: c.name, pct: ((student.scores[c.id] || 0) / c.max) * 100 };
@@ -1105,7 +1108,7 @@ function renderSupportList() {
     `).join('');
 }
 
-/* ================== CERTIFICATES (PRINT LOGIC) ================== */
+/* ================== CERTIFICATES ================== */
 let crt_name, crt_cls, crt_sec;
 function openCertificateModal(name, cls, sec) {
     crt_name = name; crt_cls = cls; crt_sec = sec;
@@ -1118,15 +1121,11 @@ function printCertificate() {
     document.getElementById('pSec').textContent = crt_sec;
     document.getElementById('pSubj').textContent = document.getElementById('certSubject').value;
     document.getElementById('pReason').textContent = document.getElementById('certReason').value;
-    
-    // إصلاح مشكلة عدم ظهور اسم المعلم في الشهادة
     document.getElementById('pTeacher').textContent = document.getElementById('certTeacher').value;
-    
     const d = new Date();
     document.getElementById('pDate').textContent = `${d.getDate()} / ${d.getMonth()+1} / ${d.getFullYear()}`;
     
     closeModal('certModal');
-    // إعطاء المتصفح لحظة لرسم الاسم قبل فتح نافذة الطباعة
     setTimeout(() => { window.print(); }, 400);
 }
 
@@ -1134,7 +1133,6 @@ function printCertificate() {
 function exportExcel() {
     if(!D.students.length) return toast('لا توجد بيانات للتصدير','error');
     const h = ['الرقم_الأكاديمي','الاسم','الصف','الشعبة',...D.criteria.map(c=>c.name),'المجموع','المستوى'];
-    // إضافة حماية بالـ Quotes للأسماء لمنع تشوه الملف بسبب الفواصل
     const r = D.students.map(s => [`"${s.sid}"`, `"${s.name}"`, `"${s.class}"`, `"${s.section}"`, ...D.criteria.map(c=>s.scores[c.id]), s.total, `"${s.level}"`]);
     const csv = '\uFEFF' + [h,...r].map(x=>x.join(',')).join('\n');
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
